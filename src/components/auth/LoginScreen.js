@@ -1,37 +1,67 @@
 
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import validator from 'validator';
 import { startGoogleLogin, startLoginEmailPassword } from '../../actions/auth';
+import { removeError, setError } from '../../actions/ui';
 import { useForm } from '../../hooks/useForm';
 
 export const LoginScreen = () => {
 
     const dispatch = useDispatch();
 
+    const { loading, msgError } = useSelector(state => state.ui);
+
     const [formValues, handleInputChange] = useForm({
-        email: 'r@gmail.com',
+        email: 's@gmail.com',
         password: '123456'
     });
 
+    const { email, password } = formValues;
+
     const handleLogin = (e) => {
         e.preventDefault();
-
-        dispatch(startLoginEmailPassword(email, password));
+        if (isFormValid()) {
+            dispatch(startLoginEmailPassword(email, password));
+        }
 
     }
 
     const handleGoogleLogin = () => {
+
         dispatch(startGoogleLogin());
+
     }
 
-    const { email, password } = formValues;
+    const isFormValid = () => {
+
+        if (!validator.isEmail(email)) {
+            const err = 'Email is not valid';
+            dispatch(setError(err));
+            return false;
+
+        } else if (password.length < 5) {
+            const err = 'Password should be at least 6 characters';
+            dispatch(setError(err));
+            return false;
+        }
+        dispatch(removeError());
+        return true;
+    }
 
     return (
         <div>
 
             <h3 className="auth__title mb-5">Login</h3>
-
+            {
+                msgError &&
+                (
+                    <div className="auth__alert-error">
+                        { msgError}
+                    </div>
+                )
+            }
             <form onSubmit={handleLogin}>
                 <input
                     type="text"
@@ -53,6 +83,7 @@ export const LoginScreen = () => {
                 <button
                     type="submit"
                     className="btn btn-primary btn-block"
+                    disabled={loading}
                 >
                     Login
                 </button>
@@ -62,6 +93,7 @@ export const LoginScreen = () => {
 
                     <div
                         className="google-btn"
+                        disabled={loading}
                         onClick={handleGoogleLogin}
                     >
                         <div className="google-icon-wrapper">

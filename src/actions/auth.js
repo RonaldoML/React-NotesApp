@@ -1,16 +1,45 @@
 import { types } from "../types/types";
 import { firebase, googleAuthProvider } from '../firebase/firebase-config';
+import { finishLoading, startLoading } from "./ui";
 
 
 //Se crea una acción que dispara otra acción cuando se resuelve la tarea asíncrona
 export const startLoginEmailPassword = (email, password) => {
     return (dispatch) => {
 
-        setTimeout(() => {
+        dispatch(startLoading());
 
-            dispatch(login(123, 'Pedro'));
+        firebase.auth().signInWithEmailAndPassword(email, password)
+            .then(({user}) => {
+                console.log(user);
+                dispatch(
+                    
+                    login(user.uid, user.displayName)
 
-        }, 3500);
+                )
+                dispatch(finishLoading());
+            }).catch(err => {
+                console.log(err)
+                dispatch(finishLoading());
+            });
+
+    }
+}
+
+//Crea la autenticación al registrar un usuario
+export const startRegisterWithEmailPasswordName = (email, password, name) => {
+
+    return (dispatch) => {
+
+        firebase.auth().createUserWithEmailAndPassword(email, password)
+            .then(async ({ user }) => {
+                await user.updateProfile({ displayName: name });
+                dispatch(
+
+                    login(user.uid, user.displayName)
+
+                )
+            }).catch(err => console.log(err));
 
     }
 }
