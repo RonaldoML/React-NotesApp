@@ -2,6 +2,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import validator from 'validator';
 import { startGoogleLogin, startLoginEmailPassword } from '../../actions/auth';
 import { removeError, setError } from '../../actions/ui';
@@ -11,7 +12,7 @@ export const LoginScreen = () => {
 
     const dispatch = useDispatch();
 
-    const { loading, msgError } = useSelector(state => state.ui);
+    const { loading } = useSelector(state => state.ui);
 
     const [formValues, handleInputChange] = useForm({
         email: 's@gmail.com',
@@ -38,11 +39,13 @@ export const LoginScreen = () => {
 
         if (!validator.isEmail(email)) {
             const err = 'Email is not valid';
+            Swal.fire('Error', err, 'error');
             dispatch(setError(err));
             return false;
 
         } else if (password.length < 5) {
             const err = 'Password should be at least 6 characters';
+            Swal.fire('Error', err, 'error');
             dispatch(setError(err));
             return false;
         }
@@ -54,14 +57,7 @@ export const LoginScreen = () => {
         <div>
 
             <h3 className="auth__title mb-5">Login</h3>
-            {
-                msgError &&
-                (
-                    <div className="auth__alert-error">
-                        { msgError}
-                    </div>
-                )
-            }
+
             <form onSubmit={handleLogin}>
                 <input
                     type="text"
