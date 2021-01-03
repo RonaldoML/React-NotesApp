@@ -12,7 +12,7 @@ export const NoteScreen = () => {
 
     const [ values, handleInputChange, reset] = useForm(note);
 
-    const { title, body, url} = values;
+    const { title, body} = values;
 
     //Hacemos que se mantenga la referencia a la nota que se está mostrando
     const activeId = useRef( note.id );
@@ -26,6 +26,7 @@ export const NoteScreen = () => {
         
     }, [reset, note])
 
+    //Actualiza la nota activa
     useEffect(() => {
         
         dispatch( activeNote( values.id, { ...values } ) );
@@ -61,8 +62,7 @@ export const NoteScreen = () => {
                     note.url &&
                     <div className="notes__image">
                     <img
-                        //src="https://iso.500px.com/wp-content/uploads/2014/07/big-one.jpg"
-                        src={url}
+                        src={note.url}
                         alt="imagen"
                     />
                 </div>
