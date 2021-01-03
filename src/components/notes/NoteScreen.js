@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { activeNote } from '../../actions/notes';
+import { activeNote, startDeleting } from '../../actions/notes';
 import { useForm } from '../../hooks/useForm';
 import { NotesAppBar } from './NotesAppBar'
 
@@ -10,34 +10,40 @@ export const NoteScreen = () => {
 
     const { active: note } = useSelector(state => state.notes);
 
-    const [ values, handleInputChange, reset] = useForm(note);
+    const [values, handleInputChange, reset] = useForm(note);
 
-    const { title, body} = values;
+    const { title, body, id } = values;
 
     //Hacemos que se mantenga la referencia a la nota que se está mostrando
-    const activeId = useRef( note.id );
+    const activeId = useRef(note.id);
 
     //Se lanza el efecto que actualiza la nota mostrada si esta es seleccionada
     useEffect(() => {
-        if(note.id !== activeId.current){
+        if (note.id !== activeId.current) {
             reset(note);
             activeId.current = note.id;
         }
-        
+
     }, [reset, note])
 
     //Actualiza la nota activa
     useEffect(() => {
-        
-        dispatch( activeNote( values.id, { ...values } ) );
 
-    }, [values, dispatch])
+        dispatch(activeNote(values.id, { ...values }));
+
+    }, [values, dispatch]);
+
+
+    const handleDelete = () => {
+
+        dispatch(startDeleting(id));
+    }
 
     return (
         <div className="note__main-content">
-            <NotesAppBar/>
+            <NotesAppBar />
             <div className="notes__content">
-                <input 
+                <input
                     type="text"
                     placeholder="Some awesome title"
                     className="notes__title-input"
@@ -52,7 +58,7 @@ export const NoteScreen = () => {
                     placeholder="What happened today"
                     className="notes__textarea"
                     name="body"
-                    value= {body}
+                    value={body}
                     onChange={handleInputChange}
                 >
 
@@ -61,13 +67,21 @@ export const NoteScreen = () => {
                 {
                     note.url &&
                     <div className="notes__image">
-                    <img
-                        src={note.url}
-                        alt="imagen"
-                    />
-                </div>
+                        <img
+                            src={note.url}
+                            alt="imagen"
+                        />
+                    </div>
                 }
             </div>
+
+            <button
+                className="btn btn-danger"
+                onClick={handleDelete}
+            >
+                Delete
+                </button>
+
         </div>
     )
 }

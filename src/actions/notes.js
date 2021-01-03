@@ -20,8 +20,19 @@ export const startNewNote = () => {
         const doc = await db.collection(`${uid}/journal/notes`).add(newNote);
 
         dispatch(activeNote(doc.id, newNote));
+
+        //Agrega la nueva nota al arregloy lo muestra en el sidebar en tiempo real
+        dispatch(addNewNote(doc.id, newNote));
     }
 }
+
+export const addNewNote = (id, note) => ({
+    type: types.notesAddNew,
+    payload: {
+        id,
+        ...note
+    }
+})
 
 export const activeNote = (id, note) => ({
 
@@ -88,7 +99,7 @@ export const refreshNote = (id, note) => ({
 })
 
 export const startUploading = (file) => {
-    return async( dispatch, getState ) => {
+    return async (dispatch, getState) => {
 
         const { active: activeNote } = getState().notes;
 
@@ -97,7 +108,7 @@ export const startUploading = (file) => {
             text: 'Please wait...',
             showCloseButton: false,
             showCancelButton: false,
-            willOpen: ()=> {
+            willOpen: () => {
                 Swal.showLoading();
             }
         })
@@ -112,3 +123,26 @@ export const startUploading = (file) => {
 
     }
 }
+
+export const startDeleting = (id) => {
+    return async (dispatch, getState) => {
+
+        const uid = getState().auth.uid;
+
+        await db.doc(`${uid}/journal/notes/${id}`).delete();
+
+        dispatch(deleteNote(id));
+
+    }
+}
+
+export const deleteNote = (id) => ({
+
+    type: types.notesDelete,
+    payload: id
+
+})
+
+export const noteLoggout = () => ({
+    type: types.notesLogeoutCleaning
+})

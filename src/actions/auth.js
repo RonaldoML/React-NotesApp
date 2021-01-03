@@ -2,6 +2,7 @@ import { types } from "../types/types";
 import Swal from 'sweetalert2';
 import { firebase, googleAuthProvider } from '../firebase/firebase-config';
 import { finishLoading, startLoading } from "./ui";
+import { noteLoggout } from "./notes";
 
 
 //Se crea una acción que dispara otra acción cuando se resuelve la tarea asíncrona
@@ -79,7 +80,7 @@ export const startLogout = () => {
         await firebase.auth().signOut();
 
         dispatch( logout() );
-
+        dispatch( noteLoggout() );
     }
 
 }
